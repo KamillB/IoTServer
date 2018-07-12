@@ -8,32 +8,30 @@ import java.util.Date;
 
 
 @Entity
-@Table(name = "Temperature", schema = "public")
+@Table(name = "Temperature")
 @EntityListeners(AuditingEntityListener.class)
 public class TempData {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @SequenceGenerator(name = "myIdGenerator", sequenceName = "mySequence", initialValue = 100, allocationSize = 100)
+    @GeneratedValue(generator = "myIdGenerator", strategy = GenerationType.IDENTITY)
     @Column(name="ID")
     private Integer id;
 
-    @NotBlank
     @Column(name="Owner")
-    private String name;
+    private String owner;
 
-    @NotBlank
     @Column(name="Value")
     private Double temp;
 
-    @NotBlank
     @Column(name="Date")
     private Date data;
 
     public TempData(){
     }
 
-    public TempData(Integer id, String name, Double temp, Date data) {
+    public TempData(Integer id, String owner, Double temp, Date data) {
         this.id = id;
-        this.name = name;
+        this.owner = owner;
         this.temp = temp;
         this.data = data;
     }
@@ -42,8 +40,8 @@ public class TempData {
         this.id = id;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setOwner(String owner) {
+        this.owner = owner;
     }
 
     public void setTemp(Double temp) {
@@ -54,8 +52,8 @@ public class TempData {
 
     public Integer getId() { return id; }
 
-    public String getName() {
-        return name;
+    public String getOwner() {
+        return owner;
     }
 
     public Double getTemp() {
