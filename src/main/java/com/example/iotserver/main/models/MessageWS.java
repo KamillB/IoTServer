@@ -2,13 +2,13 @@ package com.example.iotserver.main.models;
 
 public class MessageWS {
     private String type;
-    private TempData tempData;
+    private Temperature temperature;
 
     public MessageWS() {}
 
-    public MessageWS(String type, TempData tempData) {
+    public MessageWS(String type, Temperature temperature) {
         this.type = type;
-        this.tempData = tempData;
+        this.temperature = temperature;
     }
 
     public String getType() {
@@ -18,8 +18,8 @@ public class MessageWS {
         this.type = type;
     }
 
-    public TempData getTempData() { return tempData; }
-    public void setTempData(TempData tempData) {
-        this.tempData = tempData;
+    public Temperature getTemperature() { return temperature; }
+    public void setTemperature(Temperature temperature) {
+        this.temperature = temperature;
     }
 }
