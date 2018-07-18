@@ -9,7 +9,6 @@ import javax.persistence.*;
 @EntityListeners(AuditingEntityListener.class)
 public class DeviceKey {
     @Id
-    //@Column(name="device key")
     private String device_key;
 
     DeviceKey(){

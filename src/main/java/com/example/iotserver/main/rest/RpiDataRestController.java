@@ -10,7 +10,7 @@ import java.util.*;
 
 @RestController
 @RequestMapping("/rpi")
-public class RpiDataController {
+public class RpiDataRestController {
 
     @Autowired
     private TemperatureRepository temperatureRepository;
