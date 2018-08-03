@@ -1,7 +1,8 @@
 package com.example.iotserver.main.rest;
 
 
-import com.example.iotserver.main.models.*;
+import com.example.iotserver.main.models.db.User;
+import com.example.iotserver.main.models.dbModels.UserModel;
 import com.example.iotserver.main.repository.UserRepository;
 import com.example.iotserver.main.utils.UniqueKeyGenerator;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,12 +20,14 @@ public class ClientDataRestController {
         Iterable<User> users = userRepository.findAll();
         for (User user : users){
             if (user.getMail().equals(input.getMail())){
-                return "This mail is already in use.";
+                return "UsedMail";
             }
             if (user.getName().equals(input.getName())){
-                return "This name is already in use.";
+                return "UsedName";
             }
         }
+
+        //TODO add password hashing
 
         User user = new User(
                 input.getName(),
@@ -32,7 +35,7 @@ public class ClientDataRestController {
                 input.getPassword()
         );
         userRepository.save(user);
-        return "Successfully created user with name " + user.getName();
+        return "Success";
     }
 
     @PostMapping("login")
@@ -43,11 +46,17 @@ public class ClientDataRestController {
                 return UniqueKeyGenerator.generate(user.getMail());
             }
             else{
-                return "Wrong password.";
+                return "WrongPassword";
             }
         }
         catch (Exception e){
-            return "User with this mail not found.";
+            return "MailNotFound";
         }
+    }
+
+    @GetMapping("test")
+    public String test(){
+        System.out.println("no test wszedl");
+        return "no wydaje sie ze dziala lol";
     }
 }

@@ -1,8 +1,13 @@
 package com.example.iotserver.main.rest;
 
-import com.example.iotserver.main.models.*;
+import com.example.iotserver.main.models.db.Device;
+import com.example.iotserver.main.models.db.Temperature;
+import com.example.iotserver.main.models.db.TemperatureArchive;
+import com.example.iotserver.main.models.dbModels.DeviceModel;
+import com.example.iotserver.main.models.dbModels.TemperatureModel;
 import com.example.iotserver.main.repository.*;
 import com.example.iotserver.main.utils.UniqueKeyGenerator;
+import com.example.iotserver.main.websocket.WebSocketClientHandler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -26,15 +31,15 @@ public class RpiDataRestController {
         Boolean unique = true;
         Iterable<Device> devices = deviceRepository.findAll();
         for (Device dev : devices){
-            if (dev.getSerial_number().equals(input.getSerial_number())){
+            if (dev.getSerialNumber().equals(input.getSerialNumber())){
                 unique = false;
             }
         }
         if (unique){
             Device device = new Device();
-            device.setSerial_number(input.getSerial_number());
+            device.setSerialNumber(input.getSerialNumber());
             device.setMac(input.getMac());
-            device.setDevice_key(UniqueKeyGenerator.generate());
+            device.setDeviceKey(UniqueKeyGenerator.generate());
 
             deviceRepository.save(device);
             return device;
@@ -47,8 +52,8 @@ public class RpiDataRestController {
     public Device changeKey(@RequestBody DeviceModel input){
         Iterable<Device> devices = deviceRepository.findAll();
         for (Device dev : devices){
-            if (dev.getSerial_number().equals(input.getSerial_number())){
-                dev.setDevice_key(UniqueKeyGenerator.generate());
+            if (dev.getSerialNumber().equals(input.getSerialNumber())){
+                dev.setDeviceKey(UniqueKeyGenerator.generate());
                 deviceRepository.save(dev);
                 return dev;
             }
@@ -59,7 +64,7 @@ public class RpiDataRestController {
     @PostMapping("temperature")
     public TemperatureArchive saveTemperature(@RequestBody TemperatureModel input){
         TemperatureArchive temp_arch = new TemperatureArchive(
-                input.getOwner(),
+                input.getOwnerSerialNumber(),
                 input.getTemp(),
                 new Date(input.getMilis()*1000),
                 input.getName()
@@ -70,7 +75,7 @@ public class RpiDataRestController {
         Iterable<Temperature> temps = temperatureRepository.findAll();
         for (Temperature t : temps){
             if (t.getName().equals(input.getName())){
-                if (t.getOwner().equals(input.getOwner())){
+                if (t.getOwner().equals(input.getOwnerSerialNumber())){
                     t.setTemp(input.getTemp());
                     t.setDate(temp_arch.getDate());
                     temperatureRepository.save(t);
@@ -92,5 +97,6 @@ public class RpiDataRestController {
 
     @PostMapping("image")
     public void saveImage(){
+        //TODO add images
     }
 }
