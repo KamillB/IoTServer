@@ -3,14 +3,15 @@ package com.example.iotserver.main.websocket;
 import javax.websocket.DecodeException;
 import javax.websocket.Decoder;
 import javax.websocket.EndpointConfig;
-import com.example.iotserver.main.models.MessageWS;
+
+import com.example.iotserver.main.models.wsModels.WsMessage;
 import com.google.gson.Gson;
 
-public class MessageDecoder implements Decoder.Text<MessageWS> {
+public class MessageDecoder implements Decoder.Text<WsMessage> {
 	@Override
-	public MessageWS decode(String jsonMessage) throws DecodeException {
+	public WsMessage decode(String jsonMessage) throws DecodeException {
 		Gson gson = new Gson();
-		MessageWS messageWS = gson.fromJson(jsonMessage, MessageWS.class);
+		WsMessage messageWS = gson.fromJson(jsonMessage, WsMessage.class);
 		return messageWS;
 	}
 	
