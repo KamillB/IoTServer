@@ -1,4 +1,4 @@
-package com.example.iotserver.main.models;
+package com.example.iotserver.main.models.dbModels;
 
 import org.springframework.stereotype.Component;
 

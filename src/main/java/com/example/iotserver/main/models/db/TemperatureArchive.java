@@ -1,4 +1,4 @@
-package com.example.iotserver.main.models;
+package com.example.iotserver.main.models.db;
 
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import javax.persistence.*;
@@ -7,12 +7,12 @@ import javax.validation.constraints.NotNull;
 import java.util.Date;
 
 @Entity
-@Table(name = "temperatures")
+@Table(name = "temperatures_archive")
 @EntityListeners(AuditingEntityListener.class)
-public class Temperature {
+public class TemperatureArchive {
     @Id
-    @SequenceGenerator(name = "IdGenerator", sequenceName = "basicSequence", initialValue = 1, allocationSize = 1)
-    @GeneratedValue(generator = "IdGenerator", strategy = GenerationType.IDENTITY)
+    @SequenceGenerator(name = "IdGeneratorArch", sequenceName = "basicSequence", initialValue = 1, allocationSize = 1)
+    @GeneratedValue(generator = "IdGeneratorArch", strategy = GenerationType.IDENTITY)
     @Column(name="ID")
     private Integer id;
 
@@ -30,10 +30,10 @@ public class Temperature {
     @Column(name="name")
     private String name;
 
-    public Temperature(){
+    public TemperatureArchive(){
     }
 
-    public Temperature( String owner, Double temp, Date date, String name) {
+    public TemperatureArchive(String owner, Double temp, Date date, String name) {
         this.owner = owner;
         this.temp = temp;
         this.date = date;

@@ -1,4 +1,4 @@
-package com.example.iotserver.main.models;
+package com.example.iotserver.main.models.db;
 
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
