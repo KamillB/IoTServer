@@ -1,6 +1,7 @@
 package com.example.iotserver.main.utils;
 
-import com.example.iotserver.main.models.*;
+import com.example.iotserver.main.models.db.DeviceKey;
+import com.example.iotserver.main.models.db.LoggingSessionKey;
 import com.example.iotserver.main.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DuplicateKeyException;
@@ -29,8 +30,8 @@ public class UniqueKeyGenerator {
     }
 
     public static String generate(Integer length){
-        if (length>32){
-            length = 32;
+        if (length>36){
+            length = 36;
         }
         while (Boolean.TRUE) {
             try {
@@ -45,9 +46,15 @@ public class UniqueKeyGenerator {
     }
 
     public static String generate(String mail){
+        Iterable<LoggingSessionKey> lsks = loggingSessionKeyRepository.findAllByMail(mail);
+        for (LoggingSessionKey l: lsks) {
+            loggingSessionKeyRepository.delete(l);
+        };
+
         while (Boolean.TRUE){
             try {
                 String key = UUID.randomUUID().toString();
+
                 LoggingSessionKey sessionKey = new LoggingSessionKey(
                         key,
                         mail
