@@ -1,17 +1,26 @@
 package com.example.iotserver.main.rest;
 
 import com.example.iotserver.main.models.db.Device;
+import com.example.iotserver.main.models.db.Image;
 import com.example.iotserver.main.models.db.Temperature;
 import com.example.iotserver.main.models.db.TemperatureArchive;
 import com.example.iotserver.main.models.dbModels.DeviceModel;
+import com.example.iotserver.main.models.dbModels.ImageModel;
 import com.example.iotserver.main.models.dbModels.TemperatureModel;
 import com.example.iotserver.main.repository.*;
 import com.example.iotserver.main.utils.UniqueKeyGenerator;
 import com.example.iotserver.main.websocket.WebSocketClientHandler;
+import org.omg.CORBA.portable.ApplicationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import javax.imageio.ImageIO;
+import java.awt.*;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.util.*;
+import java.io.ByteArrayInputStream;
 
 @RestController
 @RequestMapping("/rpi")
@@ -25,6 +34,8 @@ public class RpiDataRestController {
     private TemperatureArchiveRepository temperatureArchiveRepository;
     @Autowired
     private DeviceKeyRepository deviceKeyRepository;
+    @Autowired
+    private ImageRepository imageRepository;
 
     @PostMapping("register")
     public Device registerRpi(@RequestBody DeviceModel input){
@@ -66,7 +77,7 @@ public class RpiDataRestController {
         TemperatureArchive temp_arch = new TemperatureArchive(
                 input.getOwnerSerialNumber(),
                 input.getTemp(),
-                new Date(input.getMilis()*1000),
+                new Date(input.getMilis() * 1000),
                 input.getName()
            );
         temperatureArchiveRepository.save(temp_arch);
@@ -76,7 +87,7 @@ public class RpiDataRestController {
         for (Temperature t : temps){
             if (t.getName().equals(input.getName())){
                 if (t.getOwner().equals(input.getOwnerSerialNumber())){
-                    t.setTemp(input.getTemp());
+                    t.setTemp(temp_arch.getTemp());
                     t.setDate(temp_arch.getDate());
                     temperatureRepository.save(t);
                     unique = false;
@@ -96,7 +107,49 @@ public class RpiDataRestController {
     }
 
     @PostMapping("image")
-    public void saveImage(){
-        //TODO add images
+    public Image saveImage(@RequestBody ImageModel input){
+        // Create thumbnail
+        BufferedImage img = null;
+        byte[] photo = Base64.getDecoder().decode(input.getImage());
+        try {
+            img = ImageIO.read(new ByteArrayInputStream(photo));
+        }
+        catch (Exception e){}
+
+        byte[] thumbnail = photo;
+        //TODO add thumbnail resize
+
+        // if not unique override old record with new img/thumbnail/date
+        Boolean unique = true;
+        Iterable<Image> images = imageRepository.findAll();
+        for (Image i : images){
+            if (i.getName().equals(input.getName())){
+                if (i.getOwner().equals(input.getOwner())){
+                    i.setDate(new Date(input.getMilis() * 1000));
+                    i.setImage(photo);
+                    i.setThumbnail(thumbnail);
+                    imageRepository.save(i);
+                    unique = false;
+
+                    return i;
+                }
+            }
+        }
+
+        // if unique create new record
+        if (unique){
+            Image image = new Image(
+                    input.getOwner(),
+                    photo,
+                    thumbnail,
+                    new Date(input.getMilis() * 1000),
+                    input.getName()
+            );
+
+            imageRepository.save(image);
+            return image;
+        }
+
+            return null;
     }
 }
