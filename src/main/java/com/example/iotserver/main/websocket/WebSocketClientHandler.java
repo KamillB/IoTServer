@@ -3,9 +3,8 @@ package com.example.iotserver.main.websocket;
 
 import com.example.iotserver.main.models.ClientData;
 import com.example.iotserver.main.models.db.*;
-import com.example.iotserver.main.models.dbModels.TemperatureModel;
-import com.example.iotserver.main.models.wsModels.Payload;
-import com.example.iotserver.main.models.wsModels.WsMessage;
+import com.example.iotserver.main.models.dbModels.*;
+import com.example.iotserver.main.models.wsModels.*;
 import com.example.iotserver.main.repository.*;
 import com.google.gson.Gson;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,6 +30,8 @@ public class WebSocketClientHandler extends TextWebSocketHandler {
     UserRepository userRepository;
     @Autowired
     TemperatureRepository temperatureRepository;
+    @Autowired
+    ImageRepository imageRepository;
 
     private Gson gson = new Gson();
     private List<WebSocketSession> sessions = new ArrayList<>();
@@ -120,10 +121,10 @@ public class WebSocketClientHandler extends TextWebSocketHandler {
                 userTemperatures.add(t);
             }
 
-//                Iterable<Image> img = imageRepository.findAllByOwner(dev.getSerialNumber());
-//                for (Image i : img){
-//                    userImages.add(i);
-//                }
+            Iterable<Image> img = imageRepository.findAllByOwner(dev.getSerialNumber());
+            for (Image i : img){
+                userImages.add(i);
+            }
         }
 
         // Create logged in user model for faster handling
@@ -183,16 +184,18 @@ public class WebSocketClientHandler extends TextWebSocketHandler {
         }
         message.getPayload().setTemperatureModel(temperatures);
 
-//        List<ImageModel> images = new ArrayList<>();
-//        for (Image t : client.getImages()){
-//            temperatures.add(new TemperatureModel(
-//                    t.getOwner(),
-//                    t.getImage(),
-//                    t.getDate().getTime(),
-//                    t.getName()
-//            ));
-//        }
-//        payload.setImageModel(images);
+
+
+        List<ImageModel> images = new ArrayList<>();
+        for (Image i : client.getImages()){
+            images.add(new ImageModel(
+                    i.getOwner(),
+                    Base64.getEncoder().encodeToString(i.getImage()),
+                    i.getDate().getTime(),
+                    i.getName()
+            ));
+        }
+        payload.setImageModel(images);
 
         session.sendMessage(new TextMessage(gson.toJson(message)));
         System.out.println(gson.toJson(message));

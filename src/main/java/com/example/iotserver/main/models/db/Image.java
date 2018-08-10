@@ -23,9 +23,6 @@ public class Image {
     @Column(name="Image")
     private byte[] image;
 
-    @Column
-    private byte[] thumbnail;
-
     @Column(name="Date")
     private Date date;
 
@@ -35,10 +32,9 @@ public class Image {
     Image(){
     }
 
-    public Image(@NotBlank String owner, byte[] image, byte[] thumbnail, Date date, String name) {
+    public Image(@NotBlank String owner, byte[] image, Date date, String name) {
         this.owner = owner;
         this.image = image;
-        this.thumbnail = thumbnail;
         this.date = date;
         this.name = name;
     }
@@ -53,10 +49,6 @@ public class Image {
 
     public byte[] getImage() {
         return image;
-    }
-
-    public byte[] getThumbnail() {
-        return thumbnail;
     }
 
     public Date getDate() {
@@ -77,10 +69,6 @@ public class Image {
 
     public void setImage(byte[] image) {
         this.image = image;
-    }
-
-    public void setThumbnail(byte[] thumbnail) {
-        this.thumbnail = thumbnail;
     }
 
     public void setDate(Date date) {

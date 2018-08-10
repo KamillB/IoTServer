@@ -116,9 +116,6 @@ public class RpiDataRestController {
         }
         catch (Exception e){}
 
-        byte[] thumbnail = photo;
-        //TODO add thumbnail resize
-
         // if not unique override old record with new img/thumbnail/date
         Boolean unique = true;
         Iterable<Image> images = imageRepository.findAll();
@@ -127,10 +124,9 @@ public class RpiDataRestController {
                 if (i.getOwner().equals(input.getOwner())){
                     i.setDate(new Date(input.getMilis() * 1000));
                     i.setImage(photo);
-                    i.setThumbnail(thumbnail);
+
                     imageRepository.save(i);
                     unique = false;
-
                     return i;
                 }
             }
@@ -141,7 +137,6 @@ public class RpiDataRestController {
             Image image = new Image(
                     input.getOwner(),
                     photo,
-                    thumbnail,
                     new Date(input.getMilis() * 1000),
                     input.getName()
             );
