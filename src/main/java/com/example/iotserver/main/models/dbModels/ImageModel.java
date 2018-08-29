@@ -1,22 +1,22 @@
 package com.example.iotserver.main.models.dbModels;
 
 public class ImageModel {
-    private String owner;
+    private String ownerSerialNumber;
     private String image;
     private Long milis;
     private String name;
 
     public ImageModel(){
     }
-    public ImageModel(String owner, String image, Long milis, String name) {
-        this.owner = owner;
+    public ImageModel(String ownerSerialNumber, String image, Long milis, String name) {
+        this.ownerSerialNumber = ownerSerialNumber;
         this.image = image;
         this.milis = milis;
         this.name = name;
     }
 
-    public String getOwner() {
-        return owner;
+    public String getOwnerSerialNumber() {
+        return ownerSerialNumber;
     }
 
     public String getImage() {
@@ -31,8 +31,8 @@ public class ImageModel {
         return name;
     }
 
-    public void setOwner(String owner) {
-        this.owner = owner;
+    public void setOwnerSerialNumber(String ownerSerialNumber) {
+        this.ownerSerialNumber = ownerSerialNumber;
     }
 
     public void setImage(String image) {
