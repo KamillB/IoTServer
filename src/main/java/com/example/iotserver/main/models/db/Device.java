@@ -24,13 +24,17 @@ public class Device {
     @Column(name="device key")
     private String deviceKey;
 
+    @Column(name="ip address")
+    private String ip;
+
     public Device(){
     }
 
-    public Device(String serialNumber, String mac, String deviceKey) {
+    public Device(String serialNumber, String mac, String deviceKey, String ip) {
         this.serialNumber = serialNumber;
         this.mac = mac;
         this.deviceKey = deviceKey;
+        this.ip = ip;
     }
 
     public Integer getId() { return id; }
@@ -41,6 +45,8 @@ public class Device {
 
     public String getDeviceKey() { return deviceKey; }
 
+    public String getIp() { return ip; }
+
     public void setId(Integer id) { this.id = id; }
 
     public void setSerialNumber(String serialNumber) { this.serialNumber = serialNumber; }
@@ -48,6 +54,8 @@ public class Device {
     public void setMac(String mac) { this.mac = mac; }
 
     public void setDeviceKey(String deviceKey) { this.deviceKey = deviceKey; }
+
+    public void setIp(String ip) { this.ip = ip; }
 
     @Override
     public boolean equals(Object o) {
@@ -62,7 +70,6 @@ public class Device {
 
     @Override
     public int hashCode() {
-
         return Objects.hash(id, serialNumber, mac, deviceKey);
     }
 }
