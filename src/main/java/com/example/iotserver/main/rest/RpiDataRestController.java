@@ -9,16 +9,12 @@ import com.example.iotserver.main.models.dbModels.ImageModel;
 import com.example.iotserver.main.models.dbModels.TemperatureModel;
 import com.example.iotserver.main.repository.*;
 import com.example.iotserver.main.utils.UniqueKeyGenerator;
-import com.example.iotserver.main.websocket.WebSocketClientHandler;
-import org.omg.CORBA.portable.ApplicationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import javax.imageio.ImageIO;
-import java.awt.*;
+import javax.servlet.http.HttpServletRequest;
 import java.awt.image.BufferedImage;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.util.*;
 import java.io.ByteArrayInputStream;
 
@@ -38,12 +34,14 @@ public class RpiDataRestController {
     private ImageRepository imageRepository;
 
     @PostMapping("register")
-    public Device registerRpi(@RequestBody DeviceModel input){
+    public String registerRpi(@RequestBody DeviceModel input, HttpServletRequest request){
+        String ip = request.getRemoteAddr();
         Boolean unique = true;
         Iterable<Device> devices = deviceRepository.findAll();
         for (Device dev : devices){
             if (dev.getSerialNumber().equals(input.getSerialNumber())){
                 unique = false;
+                return dev.getDeviceKey();
             }
         }
         if (unique){
@@ -51,22 +49,23 @@ public class RpiDataRestController {
             device.setSerialNumber(input.getSerialNumber());
             device.setMac(input.getMac());
             device.setDeviceKey(UniqueKeyGenerator.generate());
+            device.setIp(ip);
 
             deviceRepository.save(device);
-            return device;
+            return device.getDeviceKey();
         }
 
         return null;
     }
 
     @PostMapping("changeKey")
-    public Device changeKey(@RequestBody DeviceModel input){
+    public String changeKey(@RequestBody DeviceModel input){
         Iterable<Device> devices = deviceRepository.findAll();
         for (Device dev : devices){
             if (dev.getSerialNumber().equals(input.getSerialNumber())){
                 dev.setDeviceKey(UniqueKeyGenerator.generate());
                 deviceRepository.save(dev);
-                return dev;
+                return dev.getDeviceKey();
             }
         }
         return null;
@@ -108,9 +107,8 @@ public class RpiDataRestController {
 
     @PostMapping("image")
     public Image saveImage(@RequestBody ImageModel input){
-        // Create thumbnail
         BufferedImage img = null;
-        byte[] photo = Base64.getDecoder().decode(input.getImage());
+        byte[] photo = Base64.getDecoder().decode(new String(input.getImage().getBytes()));
         try {
             img = ImageIO.read(new ByteArrayInputStream(photo));
         }
@@ -121,7 +119,7 @@ public class RpiDataRestController {
         Iterable<Image> images = imageRepository.findAll();
         for (Image i : images){
             if (i.getName().equals(input.getName())){
-                if (i.getOwner().equals(input.getOwner())){
+                if (i.getOwner().equals(input.getOwnerSerialNumber())){
                     i.setDate(new Date(input.getMilis() * 1000));
                     i.setImage(photo);
 
@@ -135,7 +133,7 @@ public class RpiDataRestController {
         // if unique create new record
         if (unique){
             Image image = new Image(
-                    input.getOwner(),
+                    input.getOwnerSerialNumber(),
                     photo,
                     new Date(input.getMilis() * 1000),
                     input.getName()
@@ -146,5 +144,11 @@ public class RpiDataRestController {
         }
 
             return null;
+    }
+
+    @PostMapping("test")
+    public String testing(@RequestBody DeviceModel dev){
+        System.out.println(dev.getMac()+ "    " + dev.getSerialNumber());
+        return "ok";
     }
 }
