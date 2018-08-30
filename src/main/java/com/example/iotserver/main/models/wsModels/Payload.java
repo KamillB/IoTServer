@@ -10,14 +10,16 @@ public class Payload {
     private List<TemperatureModel> temperatureModel;
     private List<ImageModel> imageModel;
     private String deviceKey;
+    private Integer diodeNumber;
 
     public Payload(){
     }
 
-    public Payload(List<TemperatureModel> temperatureModel, List<ImageModel> imageModel, String deviceKey, List<Device> devices) {
+    public Payload(List<TemperatureModel> temperatureModel, List<ImageModel> imageModel, String deviceKey, List<Device> devices, Integer diodeNumber) {
         this.temperatureModel = temperatureModel;
         this.imageModel = imageModel;
         this.deviceKey = deviceKey;
+        this.diodeNumber = diodeNumber;
     }
 
     public List<TemperatureModel> getTemperatureModel() { return temperatureModel; }
@@ -26,11 +28,15 @@ public class Payload {
 
     public String getDeviceKey() { return deviceKey; }
 
+    public Integer getDiodeNumber() { return diodeNumber; }
+
     public void setTemperatureModel(List<TemperatureModel> temperatureModel) { this.temperatureModel = temperatureModel; }
 
     public void setImageModel(List<ImageModel> imageModel) { this.imageModel = imageModel; }
 
     public void setDeviceKey(String deviceKey) { this.deviceKey = deviceKey; }
+
+    public void setDiodeNumber(Integer diodeNumber) { this.diodeNumber = diodeNumber; }
 
     public void addTemperatureModel(TemperatureModel singleTemperature){ this.temperatureModel.add(singleTemperature); }
 
