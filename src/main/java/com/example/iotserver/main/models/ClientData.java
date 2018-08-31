@@ -9,15 +9,17 @@ public class ClientData {
     private List<Device> devices;
     private List<Temperature> temperatures;
     private List<Image> images;
+    private List<Periphery> peripheries;
 
     ClientData(){
     }
 
-    public ClientData(User user, List<Device> devices, List<Temperature> temperatures, List<Image> images) {
+    public ClientData(User user, List<Device> devices, List<Temperature> temperatures, List<Image> images, List<Periphery> peripheries) {
         this.user = user;
         this.devices = devices;
         this.temperatures = temperatures;
         this.images = images;
+        this.peripheries = peripheries;
     }
 
     public User getUser() {
@@ -36,6 +38,10 @@ public class ClientData {
         return images;
     }
 
+    public List<Periphery> getPeripheries() {
+        return peripheries;
+    }
+
     public void setUser(User user) {
         this.user = user;
     }
@@ -50,5 +56,9 @@ public class ClientData {
 
     public void setImages(List<Image> images) {
         this.images = images;
+    }
+
+    public void setPeripheries(List<Periphery> peripheries) {
+        this.peripheries = peripheries;
     }
 }
