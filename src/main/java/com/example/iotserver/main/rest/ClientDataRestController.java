@@ -50,6 +50,7 @@ public class ClientDataRestController {
             User user = userRepository.findByMail(input.getMail());
             String dbPassword = user.getPassword();
             String inputPassword = Encrypter.encrypt(input.getPassword());
+
             if (dbPassword.equals(inputPassword)){
                 return UniqueKeyGenerator.generate(user.getMail());
             }
@@ -60,13 +61,5 @@ public class ClientDataRestController {
         catch (Exception e){
             return "MailNotFound";
         }
-    }
-
-    @GetMapping("test")
-    public String test(HttpServletRequest request){
-        String ip = request.getRemoteAddr();
-        System.out.println("THE IP IS " + ip);
-        System.out.println("no test wszedl");
-        return "no wydaje sie ze dziala lol";
     }
 }
