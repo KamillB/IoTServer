@@ -1,14 +1,19 @@
 package com.example.iotserver.main.rest;
 
-import com.example.iotserver.main.models.db.Device;
-import com.example.iotserver.main.models.db.Image;
-import com.example.iotserver.main.models.db.Temperature;
-import com.example.iotserver.main.models.db.TemperatureArchive;
+import com.example.iotserver.main.models.db.*;
 import com.example.iotserver.main.models.dbModels.DeviceModel;
 import com.example.iotserver.main.models.dbModels.ImageModel;
+import com.example.iotserver.main.models.dbModels.PeripheryModel;
 import com.example.iotserver.main.models.dbModels.TemperatureModel;
+import com.example.iotserver.main.models.other.RpiMessage;
 import com.example.iotserver.main.repository.*;
 import com.example.iotserver.main.utils.UniqueKeyGenerator;
+import com.example.iotserver.main.websocket.WebSocketClientHandler;
+import com.google.gson.Gson;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClientBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -32,6 +37,8 @@ public class RpiDataRestController {
     private DeviceKeyRepository deviceKeyRepository;
     @Autowired
     private ImageRepository imageRepository;
+    @Autowired
+    private PeripheryRepository peripheryRepository;
 
     @PostMapping("register")
     public String registerRpi(@RequestBody DeviceModel input, HttpServletRequest request){
@@ -146,9 +153,42 @@ public class RpiDataRestController {
             return null;
     }
 
-    @PostMapping("test")
-    public String testing(@RequestBody DeviceModel dev){
-        System.out.println(dev.getMac()+ "    " + dev.getSerialNumber());
-        return "ok";
+    @PostMapping("periphery")
+    public Periphery registerPeriphery(@RequestBody PeripheryModel peripheryModel){
+        Boolean unique = true;
+        Iterable<Periphery> peripheries = peripheryRepository.findAll();
+        for (Periphery p : peripheries){
+            if (p.getOwner().equals(peripheryModel.getOwner())){
+                if (p.getName().equals(peripheryModel.getName())){
+                    if (p.getGpioBcm().equals(peripheryModel.getGpioBcm())) {
+                        unique = false;
+
+                        p.setDate(new Date(peripheryModel.getMilis() * 1000));
+                        p.setStatus(peripheryModel.getStatus());
+                        peripheryRepository.save(p);
+
+                        return p;
+                    }
+                }
+            }
+        }
+
+        if (unique){
+            Periphery periphery = new Periphery();
+            periphery.setDate(new Date(peripheryModel.getMilis() * 1000));
+            periphery.setGpioBcm(peripheryModel.getGpioBcm());
+            periphery.setName(peripheryModel.getName());
+            periphery.setOwner(peripheryModel.getOwner());
+            periphery.setStatus(peripheryModel.getStatus());
+
+            peripheryRepository.save(periphery);
+            return periphery;
+        }
+
+        return null;
+    }
+
+    public void callNewTemperatureRecord(){
+        WebSocketClientHandler s = new WebSocketClientHandler();
     }
 }
