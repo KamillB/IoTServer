@@ -6,4 +6,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface TemperatureArchiveRepository extends CrudRepository<TemperatureArchive, Integer> {
+    Iterable<TemperatureArchive> findAllByOwnerAndAndName(String owner, String name);
 }
