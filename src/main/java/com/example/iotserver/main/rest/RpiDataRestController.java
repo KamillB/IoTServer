@@ -39,6 +39,8 @@ public class RpiDataRestController {
     private ImageRepository imageRepository;
     @Autowired
     private PeripheryRepository peripheryRepository;
+    @Autowired
+    private WebSocketClientHandler webSocketClientHandler;
 
     @PostMapping("register")
     public String registerRpi(@RequestBody DeviceModel input, HttpServletRequest request){
@@ -96,6 +98,12 @@ public class RpiDataRestController {
                     t.setTemp(temp_arch.getTemp());
                     t.setDate(temp_arch.getDate());
                     temperatureRepository.save(t);
+
+                    try {
+                        webSocketClientHandler.updateSubscribers("temperature", t.getId());
+                    }
+                    catch (Exception e){
+                    }
                     unique = false;
                 }
             }
@@ -131,6 +139,12 @@ public class RpiDataRestController {
                     i.setImage(photo);
 
                     imageRepository.save(i);
+
+                    try {
+                        webSocketClientHandler.updateSubscribers("image", i.getId());
+                    }
+                    catch (Exception e){
+                    }
                     unique = false;
                     return i;
                 }
@@ -166,7 +180,11 @@ public class RpiDataRestController {
                         p.setDate(new Date(peripheryModel.getMilis() * 1000));
                         p.setStatus(peripheryModel.getStatus());
                         peripheryRepository.save(p);
-
+                        try {
+                            webSocketClientHandler.updateSubscribers("periphery", p.getId());
+                        }
+                        catch (Exception e){
+                        }
                         return p;
                     }
                 }
@@ -188,7 +206,4 @@ public class RpiDataRestController {
         return null;
     }
 
-    public void callNewTemperatureRecord(){
-        WebSocketClientHandler s = new WebSocketClientHandler();
-    }
 }

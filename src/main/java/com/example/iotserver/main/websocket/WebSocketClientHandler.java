@@ -112,6 +112,7 @@ public class WebSocketClientHandler extends TextWebSocketHandler {
 
         //////////////////////
         sessions.remove(session);
+        sessionClientDataList.remove(session);
         System.out.println("CLOSED" + sessions + "close status " + status);
     }
 
@@ -238,7 +239,9 @@ public class WebSocketClientHandler extends TextWebSocketHandler {
         }
         payload.setPeripheryModels(peripheries);
 
-        session.sendMessage(new TextMessage(gson.toJson(message)));
+        synchronized (session) {
+            session.sendMessage(new TextMessage(gson.toJson(message)));
+        }
         System.out.println(gson.toJson(message));
     }
 
@@ -293,7 +296,9 @@ public class WebSocketClientHandler extends TextWebSocketHandler {
         message.setType("temperatureArchiveData");
 
         System.out.println(gson.toJson(message));
-        session.sendMessage(new TextMessage(gson.toJson(message)));
+        synchronized (session) {
+            session.sendMessage(new TextMessage(gson.toJson(message)));
+        }
     }
 
     Runnable checkIfDatabaseRecordChanged = new Runnable() {
@@ -356,4 +361,102 @@ public class WebSocketClientHandler extends TextWebSocketHandler {
             }
         }
     };
+
+    public void updateSubscribers(String sensorType, Integer id) throws Exception{
+        switch (sensorType) {
+            case ("periphery"):
+                for (HashMap.Entry<WebSocketSession, ClientData> entry : sessionClientDataList.entrySet()){
+                    List<Periphery> peripheries = entry.getValue().getPeripheries();
+                    for (Periphery p : peripheries){
+                        if (p.getId().equals(id)){
+                            WsMessage message = new WsMessage();
+                            Payload payload = new Payload();
+
+                            message.setType("valueChanged");
+                            message.setPayload(payload);
+
+                            Optional<Periphery> per = peripheryRepository.findById(id);
+                            if (per.isPresent()) {
+                                List<PeripheryModel> peripheryModels = new ArrayList<>();
+                                peripheryModels.add(new PeripheryModel(
+                                        per.get().getOwner(),
+                                        per.get().getDate().getTime(),
+                                        per.get().getName(),
+                                        per.get().getGpioBcm(),
+                                        per.get().getStatus()
+                                ));
+                                payload.setPeripheryModels(peripheryModels);
+
+                                synchronized (entry.getKey()) {
+                                    entry.getKey().sendMessage(new TextMessage(gson.toJson(message)));
+                                }
+                            }
+                        }
+                    }
+                }
+                break;
+
+            case ("temperature"):
+                for (HashMap.Entry<WebSocketSession, ClientData> entry : sessionClientDataList.entrySet()) {
+                    List<Temperature> temperatures = entry.getValue().getTemperatures();
+                    for (Temperature t : temperatures){
+                        if (t.getId().equals(id)){
+                            WsMessage message = new WsMessage();
+                            Payload payload = new Payload();
+
+                            message.setType("valueChanged");
+                            message.setPayload(payload);
+
+                            Optional<Temperature> tem = temperatureRepository.findById(id);
+                            if (tem.isPresent()){
+                                List<TemperatureModel> temperatureModels = new ArrayList<>();
+                                temperatureModels.add(new TemperatureModel(
+                                        tem.get().getOwner(),
+                                        tem.get().getTemp(),
+                                        tem.get().getDate().getTime(),
+                                        tem.get().getName()
+                                ));
+                                payload.setTemperatureModel(temperatureModels);
+
+                                synchronized (entry.getKey()) {
+                                    entry.getKey().sendMessage(new TextMessage(gson.toJson(message)));
+                                }
+                            }
+                        }
+                    }
+                }
+                break;
+
+            case ("image"):
+                for (HashMap.Entry<WebSocketSession, ClientData> entry : sessionClientDataList.entrySet()) {
+                    List<Image> images = entry.getValue().getImages();
+                    for (Image i : images){
+                        if (i.getId().equals(id)){
+                            WsMessage message = new WsMessage();
+                            Payload payload = new Payload();
+
+                            message.setType("valueChanged");
+                            message.setPayload(payload);
+
+                            Optional<Image> img = imageRepository.findById(id);
+                            if (img.isPresent()){
+                                List<ImageModel> imageModels = new ArrayList<>();
+                                imageModels.add(new ImageModel(
+                                        img.get().getOwner(),
+                                        Base64.getEncoder().encodeToString(img.get().getImage()),
+                                        img.get().getDate().getTime(),
+                                        img.get().getName()
+                                ));
+                                payload.setImageModel(imageModels);
+
+                                synchronized (entry.getKey()) {
+                                    entry.getKey().sendMessage(new TextMessage(gson.toJson(message)));
+                                }
+                            }
+                        }
+                    }
+                }
+                break;
+        }
+    }
 }
