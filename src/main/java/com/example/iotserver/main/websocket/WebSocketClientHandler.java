@@ -254,7 +254,7 @@ public class WebSocketClientHandler extends TextWebSocketHandler {
         Gson gson = new Gson();
         String json = gson.toJson(message);
 
-        String url = "http://" + device.getIp() + ":8081/test";
+        String url = "http://" + device.getIp() + ":8081/raspberry";
         CloseableHttpClient httpClient = HttpClientBuilder.create().build();
 
         try {
