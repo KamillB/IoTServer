@@ -50,6 +50,10 @@ public class RpiDataRestController {
         for (Device dev : devices){
             if (dev.getSerialNumber().equals(input.getSerialNumber())){
                 unique = false;
+                if (!dev.getIp().equals(ip)){
+                    dev.setIp(ip);
+                    deviceRepository.save(dev);
+                }
                 return dev.getDeviceKey();
             }
         }
